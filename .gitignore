@@ -1,0 +1,67 @@
+# Node modules and build output
+node_modules/
+.next/
+out/
+dist/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Optional npm cache directory
+.npm/
+
+# Optional eslint cache
+.eslintcache
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Testing
+/jest.config.js
+/jest.setup.js
+/test-results/
+
+# Storybook
+storybook-static/
+*.stories.ts
+*.stories.tsx
+*.stories.js
+*.stories.jsx
+
+# TypeScript
+*.tsbuildinfo
+
+# Next.js build manifest files
+.next/cache/
+
+# VS Code settings (optional)
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# Mac system files
+Icon?
+
+# Optional: Ignore generated public files (if built output is here)
+public/build/
