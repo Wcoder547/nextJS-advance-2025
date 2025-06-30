@@ -16,6 +16,7 @@ async function dbConnect(): Promise<void> {
       (process.env.MONGODB_URI as string) || "",
       {}
     );
+    console.log(db);
     console.log(db.connections);
     connection.isConnected = db.connections[0].readyState;
 
