@@ -1,10 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDebounceCallback } from "usehooks-ts";
-import { useRouter } from "next/router";
+import { useDebounceValue } from "usehooks-ts";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { signUpSchema } from "@/schemas/signUpSchema";
 import axios, { AxiosError } from "axios";
@@ -13,6 +13,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { Form } from "@/components/ui/form";
 import {
   FormField,
   FormItem,
@@ -20,13 +22,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-const page = () => {
-  const [username, setUsername] = useState("");
-  const [isChekingUsername, setisChekingUsername] = useState(false);
-  const [usernameMessage, setusernameMessage] = useState("");
-  const [isSubmitting, setisSubmitting] = useState(false);
-  const debounced = useDebounceCallback(setUsername, 500);
-  const { toast } = useToast();
+const SignupPage = () => {
+  const [rawUsername, setRawUsername] = useState("");
+  const [debouncedUsername] = useDebounceValue(rawUsername, 500);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameMessage, setUsernameMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const router = useRouter();
 
   const form = useForm<z.infer<typeof signUpSchema>>({
@@ -37,24 +39,22 @@ const page = () => {
       password: "",
     },
   });
-  const debouncedUsername = debounced(username, 500);
 
   useEffect(() => {
     const checkUsernameUnique = async () => {
-      if (debouncedUsername) {
-        setisChekingUsername(true);
-        setusernameMessage("");
-      }
+      if (!debouncedUsername || debouncedUsername.length < 3) return;
+
+      setIsCheckingUsername(true);
+      setUsernameMessage("");
 
       try {
-        const response = axios.get(
+        const response = await axios.get(
           `/api/check-username-unique?username=${debouncedUsername}`
         );
-        console.log(response);
-        setusernameMessage((await response).data.message);
+        setUsernameMessage(response.data.message);
       } catch (error) {
         const axiosError = error as AxiosError<ApiResponse>;
-        setusernameMessage(
+        setUsernameMessage(
           axiosError.response?.data.message ?? "Error checking username"
         );
       } finally {
@@ -66,38 +66,20 @@ const page = () => {
   }, [debouncedUsername]);
 
   const onSubmit = async (data: z.infer<typeof signUpSchema>) => {
-    setisSubmitting(true);
+    setIsSubmitting(true);
     try {
-      const reponse = await axios.post<ApiResponse>("/api/sign-up", data);
-      console.log(reponse);
-
-      toast({
-        title: "Success",
-        description: reponse.data.message,
-      });
-
-      router.replace(`/verify/${username}`);
-
-      setisSubmitting(false);
+      const response = await axios.post<ApiResponse>("/api/sign-up", data);
+      console.log(response);
+      toast("Success");
+      router.replace(`/verify/${data.username}`);
     } catch (error) {
-      console.error("Error during sign-up:", error);
-
       const axiosError = error as AxiosError<ApiResponse>;
-
-      // Default error message
-      const errorMessage =
-        axiosError.response?.data.message ||
-        "There was a problem with your sign-up. Please try again.";
-
-      toast({
-        title: "Sign Up Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-
-      setisSubmitting(false);
+      toast(axiosError.response?.data.message || "Sign Up Failed");
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-800">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
@@ -117,16 +99,19 @@ const page = () => {
                   <FormLabel>Username</FormLabel>
                   <Input
                     {...field}
-                    onChange={(e:) => {
+                    value={rawUsername}
+                    onChange={(e) => {
                       field.onChange(e);
-                      debounced(e.target.value);
+                      setRawUsername(e.target.value);
                     }}
                   />
-                  {isChekingUsername && <Loader2 className="animate-spin" />}
-                  {!isChekingUsername && usernameMessage && (
+                  {isCheckingUsername && (
+                    <Loader2 className="animate-spin w-4 h-4 mt-2" />
+                  )}
+                  {!isCheckingUsername && usernameMessage && (
                     <p
                       className={`text-sm ${
-                        usernameMessage === "Username is unique"
+                        usernameMessage === "username is unique"
                           ? "text-green-500"
                           : "text-red-500"
                       }`}
@@ -138,14 +123,15 @@ const page = () => {
                 </FormItem>
               )}
             />
+
             <FormField
               name="email"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
-                  <Input {...field} name="email" />
-                  <p className=" text-gray-400 text-sm">
+                  <Input {...field} />
+                  <p className="text-gray-400 text-sm">
                     We will send you a verification code
                   </p>
                   <FormMessage />
@@ -159,11 +145,12 @@ const page = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <Input type="password" {...field} name="password" />
+                  <Input type="password" {...field} />
                   <FormMessage />
                 </FormItem>
               )}
             />
+
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
@@ -176,6 +163,7 @@ const page = () => {
             </Button>
           </form>
         </Form>
+
         <div className="text-center mt-4">
           <p>
             Already a member?{" "}
@@ -189,4 +177,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default SignupPage;

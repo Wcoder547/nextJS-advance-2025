@@ -5,8 +5,15 @@ export async function POST(request: Request) {
   await dbConnect();
   try {
     const { username, code } = await request.json();
-    const decodeUsername = decodeURIComponent(username);
-    const user = await UserModel.findOne({ username: decodeUsername });
+    // console.log("Raw username from client:", username);
+    const decodeUsername = decodeURIComponent(username).toLowerCase();
+    // console.log("Decoded username:", decodeUsername);
+
+    const user = await UserModel.findOne({
+      username: new RegExp(`^${decodeUsername}$`, "i"),
+    });
+    // console.log(user)
+
     if (!user) {
       return Response.json(
         {

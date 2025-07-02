@@ -7,6 +7,7 @@ export async function POST(request: Request) {
   await dbConnect();
   try {
     const { username, email, password } = await request.json();
+    console.log(username, email, password);
     const existingUserByVerifiedUserName = await UserModel.findOne({
       username,
       isVerified: true,
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
         await existingUserByEmail.save();
       }
     } else {
-      const hashedPassword = bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
       const expirtyDate = new Date();
       expirtyDate.setHours(expirtyDate.getHours() + 1);
 
@@ -59,7 +60,7 @@ export async function POST(request: Request) {
         verifyCode,
 
         isVerified: false,
-        isVerifiedExpiry: expirtyDate,
+        VerifiedExpiry: expirtyDate,
         isAcceptingMessage: true,
         messages: [],
       });
@@ -70,6 +71,7 @@ export async function POST(request: Request) {
         username,
         verifyCode
       );
+      console.log(emailResponse);
       if (!emailResponse) {
         return Response.json(
           {
