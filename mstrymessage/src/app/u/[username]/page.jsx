@@ -1,9 +1,8 @@
-"use-client";
-
 import React from "react";
 
 const Page = () => {
-  return <div>Sign-in Page</div>;
+  return <div>Message page</div>;
+  U;
 };
 
 export default Page;
