@@ -20,17 +20,17 @@ import { ApiResponse } from "@/types/ApiResponse";
 import { toast } from "sonner";
 type MessageCardProps = {
   message: Message;
-  onMessageDelete: (messageId: string | unknown) => void;
+  onMessageDelete: (messageId: string) => void;
 };
 
-const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
+export const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
   const handleDeleteConfirm = async () => {
     try {
       const response = await axios.delete<ApiResponse>(
         `/api/delete-message/${message._id}`
       );
       toast(response.data.message);
-      onMessageDelete(message._id);
+      onMessageDelete(message._id as string);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast(axiosError.response?.data.message ?? "Failed to delete message");
@@ -71,5 +71,3 @@ const MessageCard = ({ message, onMessageDelete }: MessageCardProps) => {
     </Card>
   );
 };
-
-export default MessageCard;
