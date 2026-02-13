@@ -9,3 +9,12 @@ export const transporter = nodemailer.createTransport({
     pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
+
+// Verify connection on startup
+transporter.verify(function (error, success) {
+  if (error) {
+    console.log("Email service error:", error);
+  } else {
+    console.log("Email service is ready");
+  }
+});
