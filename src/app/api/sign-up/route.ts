@@ -8,6 +8,7 @@ export async function POST(request: Request) {
   try {
     const { username, email, password } = await request.json();
     console.log(username, email, password);
+
     const existingUserByVerifiedUserName = await UserModel.findOne({
       username,
       isVerified: true,
@@ -21,16 +22,17 @@ export async function POST(request: Request) {
         },
         {
           status: 400,
-        }
+        },
       );
     }
 
     const existingUserByEmail = await UserModel.findOne({
       email,
     });
+
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
+
     if (existingUserByEmail) {
-      //Todo:back here
       if (existingUserByEmail.isVerified) {
         return Response.json(
           {
@@ -39,40 +41,66 @@ export async function POST(request: Request) {
           },
           {
             status: 400,
-          }
+          },
         );
       } else {
+        // Update existing unverified user
         const hashedPassword = await bcrypt.hash(password, 10);
         existingUserByEmail.password = hashedPassword;
         existingUserByEmail.verifyCode = verifyCode;
-        existingUserByEmail.VerifiedExpiry = new Date(Date.now() + 3600000);
+        existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000); // Fixed typo
         await existingUserByEmail.save();
+
+        // ✅ ADDED: Send email for existing users too
+        console.log("Sending verification email to existing user...");
+        const emailResponse = await sendVerificationEmail(
+          email,
+          username,
+          verifyCode,
+        );
+        console.log("Email response:", emailResponse);
+
+        if (!emailResponse.success) {
+          return Response.json(
+            {
+              success: false,
+              message: "Failed to send verification email",
+            },
+            {
+              status: 500,
+            },
+          );
+        }
       }
     } else {
+      // Create new user
       const hashedPassword = await bcrypt.hash(password, 10);
-      const expirtyDate = new Date();
-      expirtyDate.setHours(expirtyDate.getHours() + 1);
+      const expiryDate = new Date();
+      expiryDate.setHours(expiryDate.getHours() + 1);
 
       const newUser = new UserModel({
         username,
         email,
         password: hashedPassword,
         verifyCode,
-
+        verifyCodeExpiry: expiryDate, // Fixed typo
         isVerified: false,
-        VerifiedExpiry: expirtyDate,
         isAcceptingMessage: true,
         messages: [],
       });
       await newUser.save();
-      //send verification email
+
+      // Send verification email
+      console.log("Sending verification email to new user...");
       const emailResponse = await sendVerificationEmail(
         email,
         username,
-        verifyCode
+        verifyCode,
       );
-      console.log(emailResponse);
-      if (!emailResponse) {
+      console.log("Email response:", emailResponse);
+
+      if (!emailResponse.success) {
+        // Fixed: was checking !emailResponse
         return Response.json(
           {
             success: false,
@@ -80,7 +108,7 @@ export async function POST(request: Request) {
           },
           {
             status: 500,
-          }
+          },
         );
       }
     }
@@ -88,11 +116,11 @@ export async function POST(request: Request) {
     return Response.json(
       {
         success: true,
-        message: "User registered successfully.please verify your email",
+        message: "User registered successfully. Please verify your email",
       },
       {
         status: 201,
-      }
+      },
     );
   } catch (error) {
     console.error("Error registering user", error);
@@ -103,7 +131,7 @@ export async function POST(request: Request) {
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }
