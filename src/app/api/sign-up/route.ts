@@ -44,14 +44,12 @@ export async function POST(request: Request) {
           },
         );
       } else {
-        // Update existing unverified user
         const hashedPassword = await bcrypt.hash(password, 10);
         existingUserByEmail.password = hashedPassword;
         existingUserByEmail.verifyCode = verifyCode;
         existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000); // Fixed typo
         await existingUserByEmail.save();
 
-        // ✅ ADDED: Send email for existing users too
         console.log("Sending verification email to existing user...");
         const emailResponse = await sendVerificationEmail(
           email,
@@ -73,7 +71,6 @@ export async function POST(request: Request) {
         }
       }
     } else {
-      // Create new user
       const hashedPassword = await bcrypt.hash(password, 10);
       const expiryDate = new Date();
       expiryDate.setHours(expiryDate.getHours() + 1);
@@ -90,7 +87,6 @@ export async function POST(request: Request) {
       });
       await newUser.save();
 
-      // Send verification email
       console.log("Sending verification email to new user...");
       const emailResponse = await sendVerificationEmail(
         email,
@@ -100,7 +96,6 @@ export async function POST(request: Request) {
       console.log("Email response:", emailResponse);
 
       if (!emailResponse.success) {
-        // Fixed: was checking !emailResponse
         return Response.json(
           {
             success: false,

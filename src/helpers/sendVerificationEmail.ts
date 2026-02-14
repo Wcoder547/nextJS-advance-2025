@@ -7,7 +7,7 @@ export async function sendVerificationEmail(
   verifycode: string,
 ): Promise<ApiResponse> {
   try {
-    console.log(`Attempting to send email to: ${email}`); // Add this
+    console.log(`Attempting to send email to: ${email}`);
 
     const info = await transporter.sendMail({
       from: `"Mystery Message" <${process.env.GMAIL_USER}>`,
@@ -34,10 +34,10 @@ export async function sendVerificationEmail(
       `,
     });
 
-    console.log(`✅ Email sent successfully! Message ID: ${info.messageId}`); // Add this
+    console.log(`Email sent successfully! Message ID: ${info.messageId}`);
     return { success: true, message: "Verification email sent successfully" };
   } catch (emailError) {
-    console.error("❌ Error sending verification email:", emailError);
+    console.error(" Error sending verification email:", emailError);
     return { success: false, message: "Failed to send verification email" };
   }
 }
