@@ -18,13 +18,13 @@ export async function POST(request: Request) {
           message: "User not found",
         },
         {
-          status: 404, // Changed from 500 to 404
+          status: 404,
         },
       );
     }
 
     const isCodeValid = user.verifyCode === code;
-    const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date(); // ✅ Fixed: was VerifiedExpiry
+    const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
 
     if (isCodeValid && isCodeNotExpired) {
       user.isVerified = true;
