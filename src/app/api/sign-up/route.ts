@@ -112,6 +112,7 @@ export async function POST(request: Request) {
       {
         success: true,
         message: "User registered successfully. Please verify your email",
+        username: username.toLowerCase(),
       },
       {
         status: 201,
