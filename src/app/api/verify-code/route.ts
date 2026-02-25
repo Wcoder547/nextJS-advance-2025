@@ -3,12 +3,13 @@ import UserModel from "@/model/User.model";
 
 export async function POST(request: Request) {
   await dbConnect();
+
   try {
     const { username, code } = await request.json();
     const decodeUsername = decodeURIComponent(username).toLowerCase();
 
     const user = await UserModel.findOne({
-      username: new RegExp(`^${decodeUsername}$`, "i"),
+      username: { $regex: new RegExp(`^${decodeUsername}$`, "i") },
     });
 
     if (!user) {

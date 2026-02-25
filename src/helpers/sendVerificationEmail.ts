@@ -1,4 +1,6 @@
-import { transporter } from "@/lib/emailService";
+// helpers/sendVerificationEmail.ts
+import { apiInstance } from "@/lib/emailService";
+import * as SibApiV3Sdk from "@getbrevo/brevo";
 import { ApiResponse } from "@/types/ApiResponse";
 
 export async function sendVerificationEmail(
@@ -7,37 +9,32 @@ export async function sendVerificationEmail(
   verifycode: string,
 ): Promise<ApiResponse> {
   try {
-    console.log(`Attempting to send email to: ${email}`);
+    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
-    const info = await transporter.sendMail({
-      from: `"Mystery Message" <${process.env.GMAIL_USER}>`,
-      to: email,
-      subject: "Mystery Message | Verification Code",
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f7f7f7;">
-          <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <h2 style="color: #333; margin-bottom: 20px;">Hello ${username}!</h2>
-            <p style="color: #666; font-size: 16px; line-height: 1.5;">
-              Thank you for registering with Mystery Message. Please use the verification code below to complete your registration:
-            </p>
-            <div style="background-color: #f0f0f0; padding: 20px; border-radius: 5px; text-align: center; margin: 30px 0;">
-              <h1 style="color: #4F46E5; letter-spacing: 8px; margin: 0; font-size: 32px;">${verifycode}</h1>
-            </div>
-            <p style="color: #666; font-size: 14px; line-height: 1.5;">
-              This code will expire in <strong>1 hour</strong>.
-            </p>
-            <p style="color: #999; font-size: 12px; margin-top: 30px;">
-              If you didn't request this code, please ignore this email.
-            </p>
+    sendSmtpEmail.subject = "Mystery Message | Verification Code";
+    sendSmtpEmail.to = [{ email, name: username }];
+    sendSmtpEmail.sender = {
+      name: "Mystery Message",
+      email: process.env.BREVO_SENDER_EMAIL!, // your Gmail or any email
+    };
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f7f7f7;">
+        <div style="background-color: white; padding: 30px; border-radius: 10px;">
+          <h2 style="color: #333;">Hello ${username}!</h2>
+          <p style="color: #666; font-size: 16px;">Use the code below to verify your account:</p>
+          <div style="background-color: #f0f0f0; padding: 20px; text-align: center; margin: 30px 0; border-radius: 5px;">
+            <h1 style="color: #4F46E5; letter-spacing: 8px; margin: 0; font-size: 32px;">${verifycode}</h1>
           </div>
+          <p style="color: #666; font-size: 14px;">This code expires in <strong>1 hour</strong>.</p>
+          <p style="color: #999; font-size: 12px;">If you didn't request this, ignore this email.</p>
         </div>
-      `,
-    });
+      </div>
+    `;
 
-    console.log(`Email sent successfully! Message ID: ${info.messageId}`);
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
     return { success: true, message: "Verification email sent successfully" };
-  } catch (emailError) {
-    console.error(" Error sending verification email:", emailError);
+  } catch (error) {
+    console.error("Error sending verification email:", error);
     return { success: false, message: "Failed to send verification email" };
   }
 }
