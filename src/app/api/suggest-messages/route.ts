@@ -15,7 +15,7 @@ export async function POST() {
 
   try {
     const { text } = await generateText({
-      model: groq("llama-3.2-1b-preview"),
+      model: groq("llama-3.1-8b-instant"), // ✅ CURRENT FREE MODEL (1K RPM)
       prompt,
     });
 
