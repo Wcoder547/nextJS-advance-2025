@@ -36,7 +36,7 @@ Make sure you have [Node.js](https://nodejs.org/) installed (v16.x or later is r
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/yourusername/mystery-message.git](https://github.com/yourusername/mystery-message.git)
+   git clone [https://github.com/Wcoder547/nextJS-advance-2025.git](https://github.com/Wcoder547/nextJS-advance-2025.git)
    cd mystery-message
    ```
 
