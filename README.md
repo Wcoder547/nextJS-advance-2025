@@ -1,4 +1,4 @@
-# 🕵️ MstryMessage
+# 🕵️  TrueFeedback
 
 > Send and receive anonymous feedback — no identity, no filters, just honest messages.
 
@@ -13,7 +13,7 @@
 
 ## What It Does
 
-MstryMessage lets you create a personal anonymous inbox. Sign up, get a unique shareable link, and anyone — no account needed — can send you a message without revealing who they are. You see all your messages in a private dashboard. An AI endpoint suggests message ideas so senders are never stuck staring at a blank box.
+ TrueFeedback lets you create a personal anonymous inbox. Sign up, get a unique shareable link, and anyone — no account needed — can send you a message without revealing who they are. You see all your messages in a private dashboard. An AI endpoint suggests message ideas so senders are never stuck staring at a blank box.
 
 ---
 
@@ -78,7 +78,7 @@ Owner sees message in their dashboard
 ## Project Structure
 
 ```
-Mstrymessage/
+ TrueFeedback/
 ├── src/
 │   ├── app/              # App Router pages & API routes
 │   │   ├── api/
@@ -109,8 +109,8 @@ Mstrymessage/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/Wcoder547/Mstrymessage.git
-cd Mstrymessage
+git clone https://github.com/Wcoder547/ TrueFeedback.git
+cd  TrueFeedback
 
 # 2. Install dependencies
 pnpm install
@@ -131,7 +131,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ```env
 # MongoDB
-MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/mstrymessage
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/ TrueFeedback
 
 # NextAuth
 NEXTAUTH_URL=http://localhost:3000
@@ -150,7 +150,7 @@ OPENAI_API_KEY=your-openai-api-key
 
 ## About
 
-MstryMessage was built as a full-stack Next.js project to explore anonymous communication patterns — think NGL or Sarahah, but self-hosted and fully open source.
+ TrueFeedback was built as a full-stack Next.js project to explore anonymous communication patterns — think NGL or Sarahah, but self-hosted and fully open source.
 
 The interesting engineering problems here are: keeping sender identity truly anonymous (no logging, no IP association), the AI suggestion endpoint that calls an LLM to generate contextual message prompts, and the edge middleware that cleanly separates public routes (`/u/[username]`) from protected ones (`/dashboard`) without a full server roundtrip.
 
